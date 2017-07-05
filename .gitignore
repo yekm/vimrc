@@ -1,0 +1,9 @@
+.vim_session
+/vim/.VimballRecord
+/vim/NERDTreeBookmarks
+/vim/cache
+/vim/view
+/vim/.netrwhist
+/vim/.tmp/*
+/vim/.undo/*
+tags
