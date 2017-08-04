@@ -1,7 +1,7 @@
 map <F1> :cp<CR>
 map <F2> :cn<CR>
 map <F4> :A<CR>
-map <F11> :!g++ -std=c++0x % -o %.elf && ./%.elf<CR>
+map <F11> :!g++ -std=c++17 % -o %.elf && ./%.elf<CR>
 map <F12> :make -j2<CR>
 
 function! s:DiffWithSaved()
@@ -33,6 +33,6 @@ set listchars=tab:»\ ,trail:·,extends:#,nbsp:·
 nnoremap n n
 nnoremap N N
 
-let g:ycm_global_ycm_extra_conf = '~/.vim/.ycm_extra_conf.py'
-let g:ycm_key_list_select_completion = ['<Down>']
-let g:ycm_key_list_previous_completion = ['<Up>']
+"let g:ycm_global_ycm_extra_conf = '~/.vim/.ycm_extra_conf.py'
+"let g:ycm_key_list_select_completion = ['<Down>']
+"let g:ycm_key_list_previous_completion = ['<Up>']

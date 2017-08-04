@@ -241,7 +241,7 @@ nnoremap <leader>s vip!sort -f<CR><Esc>
 vnoremap p <Esc>:let current_reg = @"<CR>gvdi<C-R>=current_reg<CR><Esc>
 
 " Shortcut to make
-nnoremap mk :make<CR>
+"nnoremap mk :make<CR>
 
 " Swap implementations of ` and ' jump to markers
 " By default, ' jumps to the marked line, ` jumps to the marked line and
@@ -264,7 +264,7 @@ noremap <C-h> <C-w>h
 noremap <C-j> <C-w>j
 noremap <C-k> <C-w>k
 noremap <C-l> <C-w>l
-nnoremap <leader>w <C-w>v<C-w>l
+" nnoremap <leader>w <C-w>v<C-w>l
 
 " Complete whole filenames/lines with a quicker shortcut key in insert mode
 inoremap <C-f> <C-x><C-f>
@@ -274,6 +274,7 @@ inoremap <C-l> <C-x><C-l>
 " yanked stack (also, in visual mode)
 nnoremap <silent> <leader>d "_d
 vnoremap <silent> <leader>d "_d
+" vnoremap <silent> x "_x  TODODODOOo
 
 " Quick yanking to the end of the line
 nnoremap Y y$
@@ -337,8 +338,10 @@ if executable('ag')
 endif
 
 " grep/Ack/Ag for the word under cursor
-vnoremap <leader>a y:grep! "\b<c-r>"\b"<cr>:cw<cr>
-nnoremap <leader>a :grep! "\b<c-r><c-w>\b"
+" vnoremap <leader>a y:grep! "\b<c-r>"\b"<cr>:cw<cr>
+" nnoremap <leader>a :grep! "\b<c-r><c-w>\b"
+vnoremap <leader>a y:Ag <c-r><cr>:cw<cr>
+nnoremap <leader>a :Ag <c-r><c-w>
 nnoremap K *N:grep! "\b<c-r><c-w>\b"<cr>:cw<cr>
 
 " Allow quick additions to the spelling dict
@@ -355,15 +358,12 @@ nnoremap \ :Ag<SPACE>
 
 " Reselect text that was just pasted with ,v
 nnoremap <leader>v V`]
-
-" Gundo.vim
-nnoremap <F5> :GundoToggle<CR>
 " }}}
 
 " NERDTree settings {{{
-nnoremap <leader>n :NERDTreeFocus<CR>
-nnoremap <leader>m :NERDTreeClose<CR>:NERDTreeFind<CR>
-nnoremap <leader>N :NERDTreeClose<CR>
+nnoremap <leader>n :NERDTreeToggle<CR>
+"nnoremap <leader>m :NERDTreeClose<CR>:NERDTreeFind<CR>
+"nnoremap <leader>N :NERDTreeClose<CR>
 
 " Store the bookmarks file
 let NERDTreeBookmarksFile=expand("$HOME/.vim/NERDTreeBookmarks")
@@ -387,39 +387,7 @@ let NERDTreeMouseMode=2
 
 " Don't display these kinds of files
 let NERDTreeIgnore=[ '\.pyc$', '\.pyo$', '\.py\$class$', '\.obj$',
-            \ '\.o$', '\.so$', '\.egg$', '^\.git$' ]
-
-" }}}
-
-" TagList settings {{{
-nnoremap <leader>l :TlistClose<CR>:TlistToggle<CR>
-nnoremap <leader>L :TlistClose<CR>
-
-" quit Vim when the TagList window is the last open window
-let Tlist_Exit_OnlyWindow=1         " quit when TagList is the last open window
-let Tlist_GainFocus_On_ToggleOpen=1 " put focus on the TagList window when it opens
-"let Tlist_Process_File_Always=1     " process files in the background, even when the TagList window isn't open
-"let Tlist_Show_One_File=1           " only show tags from the current buffer, not all open buffers
-let Tlist_WinWidth=40               " set the width
-let Tlist_Inc_Winwidth=1            " increase window by 1 when growing
-
-" shorten the time it takes to highlight the current tag (default is 4 secs)
-" note that this setting influences Vim's behaviour when saving swap files,
-" but we have already turned off swap files (earlier)
-"set updatetime=1000
-
-" the default ctags in /usr/bin on the Mac is GNU ctags, so change it to the
-" exuberant ctags version in /usr/local/bin
-let Tlist_Ctags_Cmd = '/usr/local/bin/ctags'
-
-" show function/method prototypes in the list
-let Tlist_Display_Prototype=1
-
-" don't show scope info
-let Tlist_Display_Tag_Scope=0
-
-" show TagList window on the right
-let Tlist_Use_Right_Window=1
+            \ '\.o$', '\.so$', '\.egg$', '^\.git$', '__pycache__', '\.DS_Store' ]
 
 " }}}
 
@@ -532,10 +500,28 @@ if has("autocmd")
         autocmd filetype python nnoremap <silent> <C-t> mmviw:s/True\\|False/\={'True':'False','False':'True'}[submatch(0)]/<CR>`m:nohlsearch<CR>
 
         " Run a quick static syntax check every time we save a Python file
-        "autocmd BufWritePost *.py call Flake8()
+        autocmd BufWritePost *.py call Flake8()
 
         " Defer to isort for sorting Python imports (instead of using Unix sort)
-        autocmd filetype python nnoremap <leader>s mX:%! isort -<cr>`X
+        autocmd filetype python nnoremap <leader>s mX:%!isort -<cr>`X:redraw!<cr>
+    augroup end " }}}
+
+    augroup js_files "{{{
+
+        " Defer to import-sort for sorting JavaScript imports (instead of using Unix sort)
+        autocmd filetype javascript nnoremap <leader>s :write<cr>mX:!import-sort --overwrite %<cr>:edit!<cr>`X:redraw!<cr>
+
+    augroup end " }}}
+
+    augroup clojure_files "{{{
+        au!
+
+        " Set up <leader>r to run the entire file with vim-fireplace
+        autocmd filetype clojure nnoremap <leader>r :%Eval<cr>
+        autocmd filetype clojure RainbowParenthesesActivate
+        autocmd filetype clojure RainbowParenthesesLoadRound
+        autocmd filetype clojure RainbowParenthesesLoadSquare
+        autocmd filetype clojure RainbowParenthesesLoadBraces
     augroup end " }}}
 
     augroup supervisord_files "{{{
@@ -547,7 +533,7 @@ if has("autocmd")
     augroup markdown_files "{{{
         au!
 
-        autocmd filetype markdown noremap <buffer> <leader>p :w<CR>:!open -a Marked %<CR><CR>
+        autocmd filetype markdown noremap <buffer> <leader>p :w<CR>:!open -a 'Marked 2' %<CR><CR>
     augroup end " }}}
 
     augroup ruby_files "{{{
@@ -582,6 +568,11 @@ if has("autocmd")
 
         " Enable insertion of "debugger" statement in JS files
         autocmd filetype javascript nnoremap <leader>b Odebugger;<esc>
+
+        " Use prettier to format JS files
+        autocmd FileType javascript set formatprg=bin/prettier-stdin
+        autocmd BufWritePre *.js,*.jsx Neoformat
+
     augroup end "}}}
 
     augroup textile_files "{{{
@@ -633,7 +624,7 @@ autocmd BufReadPost *
 " }}}
 
 " Common abbreviations / misspellings {{{
-" source ~/.vim/autocorrect.vim
+"source ~/.vim/autocorrect.vim
 " }}}
 
 " Extra vi-compatibility {{{
@@ -678,20 +669,11 @@ else
     set bg=dark
 endif
 
-"colorscheme mustang_silent
-"colorscheme molokai
-"colorscheme railscat
-"colorscheme kellys
-"colorscheme molokai_deep
-"colorscheme wombat256
 "colorscheme mustang
 "colorscheme mustang_silent
-"colorscheme badwolf
+"colorscheme wombat256
 "colorscheme jellybeans
-"colorscheme mustang
-"colorscheme mustang_silent
-"colorscheme wombat256
-colorscheme jellybeans
+"colorscheme onedark
 
 " Pulse ------------------------------------------------------------------- {{{
 
@@ -743,7 +725,7 @@ let g:Powerline_symbols = 'compatible'
 " Python mode configuration ----------------------------------------------- {{{
 
 " Don't run pylint on every save
-let g:pymode = 0
+let g:pymode = 1
 let g:pymode_breakpoint = 0
 let g:pymode_breakpoint_bind = '<leader>b'
 let g:pymode_doc = 0
@@ -764,27 +746,12 @@ let g:pymode_options = 0
 let g:pymode_paths = []
 let g:pymode_quickfix_maxheight = 6
 let g:pymode_quickfix_minheight = 3
-let g:pymode_rope = 0
+let g:pymode_rope = 1
+let g:pymode_rope_completion = 0
+let g:pymode_rope_regenerate_on_write = 0
 let g:pymode_run = 0
 let g:pymode_run_bind = '<leader>r'
 let g:pymode_trim_whitespaces = 0
-
-" }}}
-
-" Linters configuration -------------------------------------------------- {{{
-
-" Don't run linters for Python (conflicts with vim-flake8 and lint.vim plugins)
-let g:linters_disabled_filetypes = ['python', 'html']
-
-" To add more linters, do this:
-"
-" let g:linters_extra = []
-
-" if executable('jshint')
-"     let g:linters_extra += [
-"     \   ['javascript', 'jshint %s > %s', ["%f: line %l, col %c, %m"]],
-"     \]
-" endif
 
 " }}}
 
@@ -806,9 +773,9 @@ nnoremap <leader>b :CtrlPBuffer<cr>
 inoremap <c-u> <esc>viwUea
 nnoremap <c-u> viwUe
 
-"iabbr m@@ me@nvie.com
-"iabbr v@@ vincent@3rdcloud.com
-"iabbr ssig --<cr>Vincent Driessen<cr>vincent@3rdcloud.com
+iabbr m@@ me@nvie.com
+iabbr v@@ vincent@3rdcloud.com
+iabbr ssig --<cr>Vincent Driessen<cr>vincent@3rdcloud.com
 
 " Quote words under cursor
 nnoremap <leader>" viW<esc>a"<esc>gvo<esc>i"<esc>gvo<esc>3l
@@ -846,10 +813,6 @@ nnoremap <leader>sl :execute "rightbelow vsplit" bufname('#')<cr>
 "nnoremap <leader>g :silent execute "grep! -R " . shellescape('<cword>') . " ."<cr>:copen 12<cr>
 "nnoremap <leader>G :silent execute "grep! -R " . shellescape('<cWORD>') . " ."<cr>:copen 12<cr>
 
-" Run tests
-"inoremap <leader>w <esc>:write<cr>:!./run_tests.sh %<cr>
-"nnoremap <leader>w :!./run_tests.sh<cr>
-
 " Rope config
 nnoremap <leader>A :RopeAutoImport<cr>
 
@@ -858,6 +821,77 @@ nnoremap <leader>A :RopeAutoImport<cr>
 let &t_SI = "\<Esc>]50;CursorShape=1\x7"
 let &t_EI = "\<Esc>]50;CursorShape=0\x7"
 
+" Configure vim-expand-region, for easy selection precision
+vmap v <Plug>(expand_region_expand)
+vmap <C-v> <Plug>(expand_region_shrink)
+
+" Configure ArgWrap
+let g:argwrap_tail_comma = 1
+nnoremap <leader>w :ArgWrap<cr>
+
+" Default settings. (NOTE: Remove comments in dictionary before sourcing)
+let g:expand_region_text_objects = {
+   \ 'iw' :0,
+   \ 'i"' :0,
+   \ 'i''' :0,
+   \ 'a"' :0,
+   \ 'a''' :0,
+   \ 'i)' :1,
+   \ 'i}' :1,
+   \ 'i]' :1,
+   \ 'a)' :1,
+   \ 'a}' :1,
+   \ 'a]' :1,
+   \ }
+
+" HTML specific region expansions
+call expand_region#custom_text_objects('html', {
+   \ 'it': 1,
+   \ 'at': 1,
+   \ })
+
+" Syntastic config {{{
+
+set statusline+=%#warningmsg#
+set statusline+=%{SyntasticStatuslineFlag()}
+set statusline+=%*
+
+let g:syntastic_always_populate_loc_list = 1
+let g:syntastic_auto_loc_list = 1
+let g:syntastic_check_on_open = 0
+let g:syntastic_check_on_wq = 0
+
+let g:syntastic_html_checkers = []
+let g:syntastic_javascript_checkers = ['eslint']
+let g:syntastic_typescript_tsc_args = '--target ES2015'
+
+" }}}
+
+" {{{ Auto-format Elm source files upon save
+let g:elm_format_autosave = 1
+" }}}
+
+" {{{ Check JS with Flow
+" let g:flow#enable = 0
+let g:flow#flowpath = 'bin/flow-from-vim'
+let g:flow#autoclose = 1
+let g:flow#errjmp = 1
+" }}}
+
+" TypeScript settings {{{
+
+" let g:typescript_compiler_binary = 'tsc'
+" let g:typescript_compiler_options = '--target es2015'
+
+" }}}
+
+" NeoFormat rules {{{
+
+let g:neoformat_try_formatprg = 1
+
+" }}}
+
 " Extra user or machine specific settings {{{
 source ~/.vim/user.vim
 " }}}
+
